@@ -1,0 +1,51 @@
+﻿@model List<IssueType>
+
+<h2>Issue Types</h2>
+
+@if (User.IsInRole("Admin"))
+{
+    <a href="/IssueType/Create" class="btn btn-primary">Create New Issue Type</a>
+}
+
+<table class="table mt-3">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Fields</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var issueType in Model)
+        {
+            <tr>
+                <td>@issueType.Name</td>
+                <td>
+                    @if (issueType.IssueTypeFields.Any())
+                    {
+                        <ul>
+                            @foreach (var field in issueType.IssueTypeFields)
+                            {
+                                <li>@field.FieldName (@field.FieldType)</li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <span>No Fields Assigned</span>
+                    }
+                </td>
+                <td>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a href="/IssueType/Edit?id=@issueType.Id" class="btn btn-warning btn-sm">Edit</a>
+                        <form method="post" action="/IssueType/Delete" style="display:inline;">
+                            <input type="hidden" name="id" value="@issueType.Id" />
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

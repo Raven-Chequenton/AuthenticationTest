@@ -1,0 +1,50 @@
+﻿@model UserManagementViewModel
+
+<h2>User Management</h2>
+<a href="/UserManagement/CreateUser" class="btn btn-primary">Create New User</a>
+
+<table class="table mt-3">
+    <thead>
+        <tr>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Company</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model.Users)
+        {
+            <tr>
+                <td>@user.Email</td>
+                <td>
+                    @if (Model.UserRoles.ContainsKey(user.Id))
+                    {
+                        @Model.UserRoles[user.Id]  <!-- ✅ Display the user's role -->
+                    }
+                    else
+                    {
+                        <span>No Role Assigned</span>
+                    }
+                </td>
+                <td>
+                    @if (Model.UserCompanies.ContainsKey(user.Id))
+                    {
+                        @Model.UserCompanies[user.Id]  <!-- ✅ Display the company name -->
+                    }
+                    else
+                    {
+                        <span>No Company Assigned</span>
+                    }
+                </td>
+                <td>
+                    <a href="/UserManagement/Edit?id=@user.Id" class="btn btn-warning btn-sm">Edit</a>
+                    <form method="post" action="/UserManagement/DeleteUser" style="display:inline;">
+                        <input type="hidden" name="id" value="@user.Id" />
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

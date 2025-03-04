@@ -1,0 +1,44 @@
+﻿@model List<DepartmentViewModel>
+
+<h2>Departments</h2>
+<a href="/Department/Create" class="btn btn-primary">Create New Department</a>
+
+<table class="table mt-3">
+    <thead>
+        <tr>
+            <th>Department Name</th>
+            <th>Assigned Users</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var department in Model)
+        {
+            <tr>
+                <td>@department.Name</td>
+                <td>
+                    @if (department.AssignedUsers.Any())
+                    {
+                        <ul>
+                            @foreach (var user in department.AssignedUsers)
+                            {
+                                <li>@user</li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <span>No Users Assigned</span>
+                    }
+                </td>
+                <td>
+                    <a href="/Department/Edit?id=@department.Id" class="btn btn-warning btn-sm">Edit</a>
+                    <form method="post" action="/Department/Delete" style="display:inline;">
+                        <input type="hidden" name="id" value="@department.Id" />
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

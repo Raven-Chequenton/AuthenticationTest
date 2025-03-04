@@ -1,0 +1,37 @@
+﻿@model IEnumerable<AuthenticationTest.Models.Ticket>
+
+<h2>Tickets</h2>
+<a href="@Url.Action("Create", "Tickets")" class="btn btn-primary mb-3">+ Create Ticket</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Ticket Ref</th>
+            <th>Requestor</th>
+            <th>Short Description</th>
+            <th>Company</th>
+            <th>Assignee</th>
+            <th>Updated On</th>
+            <th>Created On</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var ticket in Model)
+        {
+            <tr>
+                <td>@ticket.TicketRef</td>
+                <td>@ticket.Requestor</td>
+                <td>@ticket.ShortDescription</td>
+                <td>@(ticket.Company != null ? ticket.Company.Name : "N/A")</td>
+                <td>@(ticket.AssignedUser != null ? ticket.AssignedUser.UserName : "Unassigned")</td>
+                <td>@(ticket.UpdatedOn.HasValue ? ticket.UpdatedOn.Value.ToString("yyyy-MM-dd HH:mm") : "-")</td>
+                <td>@ticket.CreatedOn.ToString("yyyy-MM-dd HH:mm")</td>
+                <td>
+                    <a href="@Url.Action("Edit", "Tickets", new { id = ticket.Id })" class="btn btn-warning btn-sm">Edit</a>
+                    <a href="@Url.Action("Details", "Tickets", new { id = ticket.Id })" class="btn btn-info btn-sm">View</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

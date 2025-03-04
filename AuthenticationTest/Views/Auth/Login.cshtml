@@ -1,0 +1,20 @@
+﻿@model LoginModel
+
+<h2>Login</h2>
+
+@if (ViewBag.Message != null)
+{
+    <p class="text-danger">@ViewBag.Message</p>
+}
+
+<form method="post">
+    <div class="mb-3">
+        <label>Email</label>
+        <input type="email" class="form-control" asp-for="Email" required />
+    </div>
+    <div class="mb-3">
+        <label>Password</label>
+        <input type="password" class="form-control" asp-for="Password" required />
+    </div>
+    <button type="submit" class="btn btn-primary">Login</button>
+</form>

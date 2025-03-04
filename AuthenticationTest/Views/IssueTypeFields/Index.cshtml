@@ -1,0 +1,29 @@
+﻿@model IEnumerable<AuthenticationTest.Models.IssueTypeField>
+
+<h2>Issue Type Fields</h2>
+<a href="@Url.Action("Create", "IssueTypeFields")" class="btn btn-primary mb-3">+ Add Field</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Field Name</th>
+            <th>Field Type</th>
+            <th>Issue Type</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var field in Model)
+        {
+            <tr>
+                <td>@field.FieldName</td>
+                <td>@field.FieldType</td>
+                <td>@(field.IssueType != null ? field.IssueType.Name : "N/A")</td>
+                <td>
+                    <a href="@Url.Action("Edit", "IssueTypeFields", new { id = field.Id })" class="btn btn-warning btn-sm">Edit</a>
+                    <a href="@Url.Action("Delete", "IssueTypeFields", new { id = field.Id })" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

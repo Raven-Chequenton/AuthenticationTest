@@ -1,0 +1,42 @@
+﻿@model IssueTypeViewModel
+
+<h2>Create Issue Type</h2>
+
+<form asp-action="Create" method="post">
+    <div class="mb-3">
+        <label class="form-label">Issue Type Name</label>
+        <input type="text" class="form-control" asp-for="Name" required />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <h4>Add Fields</h4>
+    <div id="fieldsContainer">
+        <!-- Fields will be dynamically added here -->
+    </div>
+
+    <button type="button" class="btn btn-secondary" onclick="addField()">+ Add Field</button>
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        let fieldIndex = 0;
+        function addField() {
+            let container = document.getElementById("fieldsContainer");
+            let html = `
+                <div class="mb-3">
+                    <label>Field Name</label>
+                    <input type="text" class="form-control" name="Fields[\${fieldIndex}].FieldName" required />
+                    <label>Field Type</label>
+                    <select class="form-control" name="Fields[\${fieldIndex}].FieldType" required>
+                        <option value="Text">Text</option>
+                        <option value="DateTime">DateTime</option>
+                    </select>
+                </div>`;
+            container.insertAdjacentHTML("beforeend", html);
+            fieldIndex++;
+        }
+    </script>
+}

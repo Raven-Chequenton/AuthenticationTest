@@ -1,0 +1,16 @@
+﻿@model AuthenticationTest.Models.IssueTypeField
+
+<h2>Delete Issue Type Field</h2>
+<p>Are you sure you want to delete this field?</p>
+
+<ul>
+    <li><strong>Field Name:</strong> @Model.FieldName</li>
+    <li><strong>Field Type:</strong> @Model.FieldType</li>
+    <li><strong>Issue Type:</strong> @(Model.IssueType != null ? Model.IssueType.Name : "N/A")</li>
+</ul>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

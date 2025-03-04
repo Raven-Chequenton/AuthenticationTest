@@ -1,0 +1,62 @@
+﻿@model Circuit
+
+<h2>Create Circuit</h2>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        <strong>Validation Errors:</strong>
+        <ul>
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <li>@error.ErrorMessage</li>
+            }
+        </ul>
+    </div>
+}
+
+<form method="post">
+    <div class="mb-3">
+        <label>Circuit ID</label>
+        <input type="text" class="form-control" asp-for="CircuitID" required />
+        <span asp-validation-for="CircuitID" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label>Site Name</label>
+        <input type="text" class="form-control" asp-for="SiteName" required />
+        <span asp-validation-for="SiteName" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label>VLAN</label>
+        <input type="text" class="form-control" asp-for="VLAN" required />
+        <span asp-validation-for="VLAN" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label>SLA (Hours)</label>
+        <input type="text" class="form-control" asp-for="SLA" required />
+        <span asp-validation-for="SLA" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label>Company</label>
+        <select class="form-control" name="CompanyId" asp-for="CompanyId" required>
+            <option value="">-- Select a Company --</option>
+            @foreach (var company in ViewBag.Companies)
+            {
+                <option value="@company.Id">@company.Name</option>
+            }
+        </select>
+        <span asp-validation-for="CompanyId" class="text-danger"></span>
+    </div>
+
+    <!-- ✅ Add a Hidden Field to Ensure Binding -->
+    <input type="hidden" name="CompanyId" id="HiddenCompanyId" />
+
+    <button type="submit" class="btn btn-primary">Create</button>
+</form>
+
+<script>
+    // ✅ Ensure dropdown selection is saved correctly
+    document.getElementById("CompanyId").addEventListener("change", function() {
+        document.getElementById("HiddenCompanyId").value = this.value;
+    });
+</script>

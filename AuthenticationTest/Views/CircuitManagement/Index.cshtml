@@ -1,0 +1,40 @@
+﻿@model List<Circuit>
+
+<h2>Circuits</h2>
+<a href="/CircuitManagement/Create" class="btn btn-primary">Add New Circuit</a>
+
+<table class="table mt-3">
+    <thead>
+        <tr>
+            <th>Circuit ID</th>
+            <th>Site Name</th>
+            <th>VLAN</th>
+            <th>SLA</th>
+            <th>Company</th>
+            <th>Created On</th>
+            <th>Created By</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var circuit in Model)
+        {
+            <tr>
+                <td>@circuit.CircuitID</td>
+                <td>@circuit.SiteName</td>
+                <td>@circuit.VLAN</td>
+                <td>@circuit.SLA</td>
+                <td>@(circuit.Company != null ? circuit.Company.Name : "No Company")</td>
+                <td>@circuit.CreatedOn.ToString("yyyy-MM-dd HH:mm")</td>
+                <td>@circuit.CreatedBy</td>
+                <td>
+                    <a href="/CircuitManagement/Edit?id=@circuit.Id" class="btn btn-warning btn-sm">Edit</a>
+                    <form method="post" action="/CircuitManagement/Delete" style="display:inline;">
+                        <input type="hidden" name="id" value="@circuit.Id" />
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

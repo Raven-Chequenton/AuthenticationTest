@@ -1,0 +1,27 @@
+﻿@model List<Company>
+
+<h2>Company Management</h2>
+<a href="/CompanyManagement/CreateCompany" class="btn btn-primary">Create New Company</a>
+
+<table class="table mt-3">
+    <thead>
+        <tr>
+            <th>Company Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var company in Model)
+        {
+            <tr>
+                <td>@company.Name</td>
+                <td>
+                    <form method="post" action="/CompanyManagement/DeleteCompany">
+                        <input type="hidden" name="id" value="@company.Id" />
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
