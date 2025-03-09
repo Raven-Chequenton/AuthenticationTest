@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/AuthenticationTest.styles.css" asp-append-version="true" />
+
 </head>
 <body>
     <header>
@@ -24,9 +25,7 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
+                        
 
                         @if (User.Identity.IsAuthenticated)
                         {
@@ -48,11 +47,28 @@
                                     <a class="nav-link text-dark" asp-controller="Department" asp-action="Index">Departments</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-controller="IssueType" asp-action="Index">Manage Issue Types</a>
+                                    <a class="nav-link" asp-controller="Tickets" asp-action="Dashboard">Dashboard</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" asp-controller="IssueTypeFields" asp-action="Index">Issue Type Fields</a>
+                                    <a class="nav-link" asp-controller="IssueType" asp-action="Index">Issue Types</a>
                                 </li>
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="ticketDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Ticket Management
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="ticketDropdown">
+                                        <li><a class="dropdown-item" asp-controller="Tickets" asp-action="Index">All Tickets</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Tickets" asp-action="Create">Create Ticket</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Tickets" asp-action="Open">Open Tickets</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Tickets" asp-action="PendingRFO">Pending RFO</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Tickets" asp-action="AwaitingClientFeedback">Awaiting Client Feedback</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Tickets" asp-action="AwaitingClientConfirmation">Awaiting Client Confirmation</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Tickets" asp-action="Closed">Closed Tickets</a></li>
+                                    </ul>
+                                </li>
+
+
+
 
                             }
                             @if (User.IsInRole("Client"))
@@ -60,6 +76,32 @@
                                 <li class="nav-item">
                                     <a class="nav-link text-dark" asp-controller="Client" asp-action="Index">Client Dashboard</a>
                                 </li>
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="ticketDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Ticket Management
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="ticketDropdown">
+                                        <li><a class="dropdown-item" asp-controller="Tickets" asp-action="Index">All Tickets</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Tickets" asp-action="Create">Create Ticket</a></li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="ticketDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Ticket Management
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="ticketDropdown">
+                                        <li><a class="dropdown-item" asp-controller="Tickets" asp-action="Index">All Tickets</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Tickets" asp-action="Create">Create Ticket</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Tickets" asp-action="Open">Open Tickets</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Tickets" asp-action="PendingRFO">Pending RFO</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Tickets" asp-action="AwaitingClientFeedback">Awaiting Client Feedback</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Tickets" asp-action="AwaitingClientConfirmation">Awaiting Client Confirmation</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Tickets" asp-action="Closed">Closed Tickets</a></li>
+                                    </ul>
+                                </li>
+
+
+                                
                             }
                             @if (User.IsInRole("Agent"))
                             {
@@ -69,6 +111,23 @@
                                 <li class="nav-item">
                                     <a class="nav-link text-dark" asp-controller="CircuitManagement" asp-action="Index">Circuits</a>
                                 </li>
+
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="ticketDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Ticket Management
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="ticketDropdown">
+                                        <li><a class="dropdown-item" asp-controller="Tickets" asp-action="Index">All Tickets</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Tickets" asp-action="Create">Create Ticket</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Tickets" asp-action="Open">Open Tickets</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Tickets" asp-action="PendingRFO">Pending RFO</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Tickets" asp-action="AwaitingClientFeedback">Awaiting Client Feedback</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Tickets" asp-action="AwaitingClientConfirmation">Awaiting Client Confirmation</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Tickets" asp-action="Closed">Closed Tickets</a></li>
+                                    </ul>
+                                </li>
+
+
                             }
                         }
                     </ul>
@@ -96,9 +155,7 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Auth" asp-action="Login">Login</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Auth" asp-action="Register">Register</a>
-                            </li>
+                            
                         }
                     </ul>
                 </div>
@@ -114,7 +171,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2025 - AuthenticationTest - <a asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2025 - AI Helpdesk - <a asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
 

@@ -1,0 +1,83 @@
+﻿@model AuthenticationTest.Models.Ticket
+@{
+    ViewData["Title"] = "Create Ticket";
+}
+
+<h2>Create Ticket</h2>
+
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label>Requestor</label>
+        
+    </div>
+
+    <div class="form-group">
+        <label>Company</label>
+        @if (User.IsInRole("Client"))
+        {
+            <input type="text" class="form-control" value="@ViewBag.CompanyName" readonly />
+            <input type="hidden" asp-for="CompanyId" value="@ViewBag.CompanyId" />
+        }
+        else
+        {
+            <select asp-for="CompanyId" class="form-control" asp-items="ViewBag.Companies"></select>
+        }
+    </div>
+
+    <div class="form-group">
+        <label>Circuit ID</label>
+        <select asp-for="CircuitId" class="form-control" asp-items="ViewBag.CircuitIds"></select>
+    </div>
+
+    <div class="form-group">
+        <label>Site Name</label>
+        <input type="text" id="siteName" class="form-control" readonly />
+    </div>
+
+    <div class="form-group">
+        <label>VLAN</label>
+        <input type="text" id="vlan" class="form-control" readonly />
+    </div>
+
+    <div class="form-group">
+        <label>Issue Type</label>
+        <select asp-for="IssueTypeId" class="form-control" asp-items="ViewBag.IssueTypes"></select>
+    </div>
+
+    <div id="dynamicFields"></div>
+
+    <div class="form-group">
+        <label>Attachments</label>
+        <input type="file" name="attachments" multiple class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create Ticket</button>
+</form>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Load VLAN & Site Name when Circuit ID is selected
+            $('#CircuitId').change(function () {
+                var circuitId = $(this).val();
+                if (circuitId) {
+                    $.get('/Tickets/GetCircuitDetails/' + circuitId, function (data) {
+                        $('#siteName').val(data.siteName);
+                        $('#vlan').val(data.vlan);
+                    });
+                }
+            });
+
+            // Load IssueType fields when IssueType is selected
+            $('#IssueTypeId').change(function () {
+                var issueTypeId = $(this).val();
+                if (issueTypeId) {
+                    $.get('/Tickets/GetIssueFields/' + issueTypeId, function (data) {
+                        $('#dynamicFields').html(data);
+                    });
+                }
+            });
+        });
+    </script>
+}
+

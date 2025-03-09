@@ -1,0 +1,327 @@
+﻿@model AuthenticationTest.Models.Ticket
+@{
+    ViewData["Title"] = $"#{Model.TicketRef}";
+    bool isClient = User.IsInRole("Client");
+}
+
+<h2>@Model.TicketRef</h2>
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Id" />
+
+    <!-- Basic Information -->
+    <div class="card">
+        <div class="card-header">Basic Information</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Ticket Ref</label>
+                    <input type="text" class="form-control" value="@Model.TicketRef" readonly />
+                </div>
+                <div class="col-md-6">
+                    <label>Requestor</label>
+                   
+                </div>
+            </div>
+
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <label>Circuit ID</label>
+                    <input type="text" class="form-control" value="@Model.Circuit.CircuitID" readonly />
+                </div>
+                <div class="col-md-6">
+                    <label>Issue Type</label>
+                    <input type="text" class="form-control" value="@Model.IssueType.Name" readonly />
+                </div>
+            </div>
+
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <label for="Status">Status</label>
+                    <select id="StatusDropdown" asp-for="Status" class="form-control">
+                        <option value="Open">Open</option>
+                        <option value="PendingRFO">Pending RFO</option>
+                        <option value="AwaitingClientConfirmation">Awaiting Client Confirmation</option>
+                        <option value="AwaitingClientFeedback">Awaiting Client Feedback</option>
+                        <option value="Closed">Closed</option>
+                    </select>
+                </div>
+                @if (!isClient)
+                {
+                    <div class="col-md-6">
+                        <label>Provider Reference</label>
+                        <input asp-for="ProviderRef" class="form-control" />
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Assignment & SLA -->
+    @if (!User.IsInRole("Client")) {
+    <div class="card mt-3">
+        <div class="card-header">Assignment & SLA</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Department</label>
+                    <select id="DepartmentDropdown" class="form-control">
+                        <option value="">-- Select Department --</option>
+                        @foreach (var dept in ViewBag.Departments) {
+                            <option value="@dept.Value">@dept.Text</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label>Assignee</label>
+                    <select id="AssigneeDropdown" name="AssigneeId" class="form-control">
+                        <option value="">-- Select Assignee --</option>
+                        @if (ViewBag.Assignees != null) {
+                            foreach (var assignee in ViewBag.Assignees) {
+                                <option value="@assignee.Value">@assignee.Text</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+    <!-- CC -->
+    <div class="card mt-3">
+        <div class="card-header">CC</div>
+        <div class="card-body">
+            <input asp-for="CC" class="form-control" placeholder="Enter email(s) separated by commas" />
+        </div>
+    </div>
+
+    <!-- Tabs for Notes & Attachments -->
+    <ul class="nav nav-tabs mt-3">
+        @if (!isClient)
+        {
+            <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#internalNote">Internal Note</a></li>
+        }
+        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#customerComm">Customer Communication</a></li>
+        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#attachments">Attachments</a></li>
+    </ul>
+
+    <div class="tab-content mt-2">
+        @if (!isClient)
+        {
+            <div id="internalNote" class="tab-pane fade show active">
+                <label>Internal Notes History</label>
+                <div id="internalNotesHistory" class="form-control" style="height: 150px; overflow-y: auto;">
+                    @foreach (var note in Model.InternalNotesHistory?.Split("\n") ?? new string[] { })
+                    {
+                        <div>@note</div>
+                    }
+                </div>
+                <textarea id="internalNoteInput" class="form-control mt-2" rows="2"></textarea>
+                <button type="button" id="addInternalNote" class="btn btn-primary mt-2">Add Internal Note</button>
+            </div>
+        }
+
+        <!-- Customer Communication -->
+        <div id="customerComm" class="tab-pane fade">
+            <label>Customer Communication History</label>
+            <div id="customerCommHistory" class="form-control" style="height: 150px; overflow-y: auto;">
+                @foreach (var message in Model.CustomerCommunicationHistory?.Split("\n") ?? new string[] { })
+                {
+                    <div>@message</div>
+                }
+            </div>
+            <textarea id="customerMessageInput" class="form-control mt-2" rows="2"></textarea>
+            <button type="button" id="sendCustomerMessage" class="btn btn-success mt-2">Send Update</button>
+        </div>
+
+        <!-- Attachments -->
+        <div id="attachments" class="tab-pane fade">
+            <label>Attachments</label>
+            <table class="table">
+                <thead>
+                    <tr><th>File Name</th><th>Uploaded By</th><th>Uploaded On</th><th>Download</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var attachment in Model.TicketAttachments ?? new List<TicketAttachment>())
+                    {
+                        <tr>
+                            <td>@attachment.FileName</td>
+                            <td>@attachment.UploadedBy</td>
+                            <td>@attachment.UploadedOn</td>
+                            <td><a href="@attachment.FilePath" class="btn btn-sm btn-info">Download</a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <input type="file" name="attachments" multiple class="form-control mt-2" />
+            <button type="button" id="uploadAttachment" class="btn btn-secondary mt-2">Upload</button>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-success mt-3">Save Changes</button>
+</form>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.nav-tabs a').click(function (e) {
+                e.preventDefault();
+                $(this).tab('show');
+            });
+
+            // ✅ Debugging: Check if DepartmentDropdown changes
+            $('#DepartmentDropdown').change(function () {
+                var departmentId = $(this).val();
+                console.log("Department Selected:", departmentId);
+
+                $('#AssigneeDropdown').empty().append('<option value="">Loading...</option>');
+
+                if (departmentId) {
+                    $.get('/Tickets/GetAssigneesByDepartment/' + departmentId)
+                        .done(function (data) {
+                            console.log("Assignees Received:", data);
+
+                            $('#AssigneeDropdown').empty().append('<option value="">-- Select Assignee --</option>');
+
+                            if (data.length === 0) {
+                                $('#AssigneeDropdown').append('<option value="">No assignees available</option>');
+                            } else {
+                                $.each(data, function (index, item) {
+                                    $('#AssigneeDropdown').append($('<option>', {
+                                        value: item.id,
+                                        text: item.email
+                                    }));
+                                });
+                            }
+                        })
+                        .fail(function (xhr, status, error) {
+                            console.error("Error Fetching Assignees:", error);
+                            alert("❌ Failed to load assignees. Please try again.");
+                            $('#AssigneeDropdown').empty().append('<option value="">-- Select Assignee --</option>');
+                        });
+                } else {
+                    $('#AssigneeDropdown').empty().append('<option value="">-- Select Assignee --</option>');
+                }
+            });
+
+            // ✅ Internal Note
+            $('#addInternalNote').click(function () {
+                var note = $('#internalNoteInput').val().trim();
+                if (note) {
+                    $.post('/Tickets/AddInternalNote', { ticketId: '@Model.Id', note: note })
+                        .done(function () {
+                            var formattedNote = `
+                                <div class="alert alert-info">
+                                    <strong>@User.Identity.Name</strong> - ${note}
+                                    <span class="text-muted">(${new Date().toLocaleString()})</span>
+                                </div>`;
+                            $('#internalNotesHistory').append(formattedNote);
+                            $('#internalNoteInput').val('');
+                        })
+                        .fail(function () {
+                            alert("❌ Failed to add internal note.");
+                        });
+                } else {
+                    alert("⚠ Internal note cannot be empty.");
+                }
+            });
+
+            // ✅ Send Customer Message
+            $('#sendCustomerMessage').click(function () {
+                var message = $('#customerMessageInput').val().trim();
+                if (message) {
+                    $.post('/Tickets/SendCustomerMessage', { ticketId: '@Model.Id', message: message })
+                        .done(function () {
+                            var formattedMessage = `
+                                <div class="alert alert-success">
+                                    <strong>@User.Identity.Name</strong> - ${message}
+                                    <span class="text-muted">(${new Date().toLocaleString()})</span>
+                                </div>`;
+                            $('#customerCommHistory').append(formattedMessage);
+                            $('#customerMessageInput').val('');
+                        })
+                        .fail(function () {
+                            alert("❌ Failed to send customer message.");
+                        });
+                } else {
+                    alert("⚠ Message cannot be empty.");
+                }
+            });
+
+            // ✅ Upload Attachment
+            $('#uploadAttachment').click(function () {
+                var fileInput = $('#attachmentInput')[0].files[0];
+                if (fileInput) {
+                    var formData = new FormData();
+                    formData.append('ticketId', '@Model.Id');
+                    formData.append('file', fileInput);
+
+                    $.ajax({
+                        url: '/Tickets/UploadAttachment',
+                        type: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function (data) {
+                            var newRow = `
+                                <tr>
+                                    <td>${data.fileName}</td>
+                                    <td>${data.uploadedBy}</td>
+                                    <td>${data.uploadedOn}</td>
+                                    <td><a href="${data.filePath}" class="btn btn-info btn-sm" download>Download</a></td>
+                                </tr>`;
+                            $('#attachmentsTableBody').append(newRow);
+                            $('#attachmentInput').val('');
+                        },
+                        error: function () {
+                            alert("❌ Failed to upload attachment.");
+                        }
+                    });
+                } else {
+                    alert("⚠ Please select a file to upload.");
+                }
+            });
+
+            // ✅ Update Status without redirecting
+            $('#StatusDropdown').change(function () {
+                var ticketId = '@Model.Id';
+                var newStatus = $(this).val();
+
+                $.post('/Tickets/UpdateStatus', { ticketId: ticketId, status: newStatus })
+                    .done(function () {
+                        alert("✅ Status updated successfully.");
+                    })
+                    .fail(function () {
+                        alert("❌ Failed to update status.");
+                    });
+            });
+        });
+                $('#SaveChangesBtn').click(function () {
+            var ticketData = {
+                Id: $('#TicketId').val(),
+                ProviderRef: $('#ProviderRef').val(),
+                DepartmentId: $('#DepartmentDropdown').val(),
+                AssigneeId: $('#AssigneeDropdown').val(),
+                CC: $('#CC').val(),
+                Status: $('#StatusDropdown').val()
+            };
+
+            $.ajax({
+                url: '/Tickets/UpdateTicket',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(ticketData),
+                success: function () {
+                    alert("Ticket updated successfully.");
+                },
+                error: function () {
+                    alert("Failed to update ticket.");
+                }
+            });
+        });
+    </script>
+}
+
+
+
+

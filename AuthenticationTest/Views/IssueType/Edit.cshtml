@@ -1,70 +1,84 @@
-﻿@model AuthenticationTest.Models.EditIssueTypeViewModel
+﻿@model IssueTypeViewModel
+
+@{
+    ViewData["Title"] = "Edit Issue Type";
+}
 
 <h2>Edit Issue Type</h2>
 
 <form asp-action="Edit" method="post">
     <input type="hidden" asp-for="Id" />
 
-    <div class="mb-3">
-        <label class="form-label">Issue Type Name</label>
-        <input type="text" class="form-control" asp-for="Name" required />
+    <div class="form-group">
+        <label asp-for="Name" class="control-label">Issue Type Name</label>
+        <input asp-for="Name" class="form-control" required />
         <span asp-validation-for="Name" class="text-danger"></span>
     </div>
 
-    <h4>Edit Fields</h4>
-    <div id="fieldsContainer">
-        @for (int i = 0; i < Model.Fields.Count; i++)
-        {
-            <div class="field-group mb-3">
-                <input type="hidden" name="Fields[@i].Id" value="@Model.Fields[i].Id" />
-                <input type="hidden" name="Fields[@i].IssueTypeId" value="@Model.Id" />
-                <label>Field Name</label>
-                <input type="text" class="form-control" name="Fields[@i].FieldName" value="@Model.Fields[i].FieldName" required />
-                <label>Field Type</label>
-                <select class="form-control" name="Fields[@i].FieldType" required>
-                    <option value="Text" selected="@(Model.Fields[i].FieldType == "Text" ? "selected" : null)">Text</option>
-                    <option value="DateTime" selected="@(Model.Fields[i].FieldType == "DateTime" ? "selected" : null)">DateTime</option>
-                    <option value="Attachment" selected="@(Model.Fields[i].FieldType == "Attachment" ? "selected" : null)">Attachment</option> 
-                </select>
-                <button type="button" class="btn btn-danger btn-sm remove-field">Remove</button>
-            </div>
-        }
-    </div>
+    <h4>Fields</h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Field Name</th>
+                <th>Field Type</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="fieldsContainer">
+            @for (int i = 0; i < Model.Fields.Count; i++)
+            {
+                <tr>
+                    <td>
+                        <input type="text" asp-for="Fields[i].FieldName" class="form-control" required />
+                        <input type="hidden" asp-for="Fields[i].Id" />
+                    </td>
+                    <td>
+                        <select asp-for="Fields[i].FieldType" class="form-control">
+                            <option value="Text">Text</option>
+                            <option value="DateTime">DateTime</option>
+                            <option value="Attachment">Attachment</option>
+                        </select>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-danger" onclick="removeField(this)">Remove</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 
-    <button type="button" class="btn btn-secondary" onclick="addField()">+ Add Field</button>
+    <button type="button" class="btn btn-secondary" onclick="addField()">Add Field</button>
+
+    <br /><br />
+
     <button type="submit" class="btn btn-primary">Save Changes</button>
     <a asp-action="Index" class="btn btn-secondary">Cancel</a>
 </form>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
     <script>
-        let fieldIndex = @Model.Fields.Count;
-
         function addField() {
-            let container = document.getElementById("fieldsContainer");
-            let html = `
-                <div class="field-group mb-3">
-                    <input type="hidden" name="Fields[\${fieldIndex}].Id" value="0" />
-                    <input type="hidden" name="Fields[\${fieldIndex}].IssueTypeId" value="@Model.Id" />
-                    <label>Field Name</label>
-                    <input type="text" class="form-control" name="Fields[\${fieldIndex}].FieldName" required />
-                    <label>Field Type</label>
-                    <select class="form-control" name="Fields[\${fieldIndex}].FieldType" required>
-                        <option value="Text">Text</option>
-                        <option value="DateTime">DateTime</option>
-                        <option value="Attachment">Attachment</option>
-                    </select>
-                    <button type="button" class="btn btn-danger btn-sm remove-field">Remove</button>
-                </div>`;
-            container.insertAdjacentHTML("beforeend", html);
-            fieldIndex++;
+            var index = $("#fieldsContainer tr").length;
+            var newRow = `<tr>
+                    <td>
+                        <input type="text" name="Fields[${index}].FieldName" class="form-control" required />
+                    </td>
+                    <td>
+                        <select name="Fields[${index}].FieldType" class="form-control">
+                            <option value="Text">Text</option>
+                            <option value="DateTime">DateTime</option>
+                            <option value="Attachment">Attachment</option>
+                        </select>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-danger" onclick="removeField(this)">Remove</button>
+                    </td>
+                </tr>`;
+            $("#fieldsContainer").append(newRow);
         }
 
-        document.getElementById("fieldsContainer").addEventListener("click", function(event) {
-            if (event.target.classList.contains("remove-field")) {
-                event.target.parentElement.remove();
-            }
-        });
+        function removeField(button) {
+            $(button).closest("tr").remove();
+        }
     </script>
 }

@@ -1,16 +1,19 @@
-﻿using AuthenticationTest.Models;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-public class IssueType
+namespace AuthenticationTest.Models
 {
-    [Key]
-    public int Id { get; set; }
+    public class IssueType
+    {
+        [Key]
+        public int Id { get; set; }
 
-    [Required]
-    [StringLength(255)]
-    public string Name { get; set; }
+        [Required]
+        public string Name { get; set; }
 
-    // ✅ Relationship: One IssueType can have many IssueTypeFields
-    public ICollection<IssueTypeField> IssueTypeFields { get; set; } = new List<IssueTypeField>();
+        // ✅ Navigation Property for IssueTypeFields (Fix for your error)
+        public virtual ICollection<IssueTypeField> IssueTypeFields { get; set; } = new List<IssueTypeField>();
+
+        public bool RequiresAttachment { get; set; }
+    }
 }

@@ -9,16 +9,14 @@ namespace AuthenticationTest.Models
         public int Id { get; set; }
 
         [Required]
-        [StringLength(255)]
-        public string FieldName { get; set; }  // ✅ Field Name (e.g., "Onsite Contact")
+        public string FieldName { get; set; }
 
         [Required]
-        [StringLength(50)]
-        public string FieldType { get; set; }  // ✅ Field Type (Text, DateTime, etc.)
+        public string FieldType { get; set; } // (e.g., Text, DateTime, Dropdown)
 
         // ✅ Foreign Key to IssueType
-        [ForeignKey("IssueType")]
         public int IssueTypeId { get; set; }
-        public IssueType? IssueType { get; set; } // ✅ Nullable to prevent errors when unassigned
+        [ForeignKey("IssueTypeId")]
+        public virtual IssueType IssueType { get; set; }
     }
 }

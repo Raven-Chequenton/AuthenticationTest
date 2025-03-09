@@ -1,13 +1,11 @@
-﻿@model List<IssueType>
-
-<h2>Issue Types</h2>
-
-@if (User.IsInRole("Admin"))
-{
-    <a href="/IssueType/Create" class="btn btn-primary">Create New Issue Type</a>
+﻿@model IEnumerable<IssueType>
+@{
+    ViewData["Title"] = "Issue Types";
 }
 
-<table class="table mt-3">
+<h2>Issue Types</h2>
+<a asp-action="Create" class="btn btn-primary">Create New Issue Type</a>
+<table class="table">
     <thead>
         <tr>
             <th>Name</th>
@@ -21,29 +19,18 @@
             <tr>
                 <td>@issueType.Name</td>
                 <td>
-                    @if (issueType.IssueTypeFields.Any())
-                    {
-                        <ul>
-                            @foreach (var field in issueType.IssueTypeFields)
-                            {
-                                <li>@field.FieldName (@field.FieldType)</li>
-                            }
-                        </ul>
-                    }
-                    else
-                    {
-                        <span>No Fields Assigned</span>
-                    }
+                    <ul>
+                        @foreach (var field in issueType.IssueTypeFields)
+                        {
+                            <li>@field.FieldName (@field.FieldType)</li>
+                        }
+                    </ul>
                 </td>
                 <td>
-                    @if (User.IsInRole("Admin"))
-                    {
-                        <a href="/IssueType/Edit?id=@issueType.Id" class="btn btn-warning btn-sm">Edit</a>
-                        <form method="post" action="/IssueType/Delete" style="display:inline;">
-                            <input type="hidden" name="id" value="@issueType.Id" />
-                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                        </form>
-                    }
+                    <a asp-action="Edit" asp-route-id="@issueType.Id" class="btn btn-warning">Edit</a>
+                    <form asp-action="Delete" method="post" asp-route-id="@issueType.Id" class="d-inline">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
                 </td>
             </tr>
         }

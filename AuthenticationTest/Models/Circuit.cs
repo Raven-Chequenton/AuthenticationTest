@@ -16,7 +16,7 @@ public class Circuit
     public string VLAN { get; set; }
 
     [Required]
-    public string SLA { get; set; } // Stored as hours (e.g., "4" for 4-hour SLA)
+    public int? SLA { get; set; } // Stored as hours (e.g., "4" for 4-hour SLA)
 
     [Required(ErrorMessage = "Please select a company.")]
     [Display(Name = "Company")]

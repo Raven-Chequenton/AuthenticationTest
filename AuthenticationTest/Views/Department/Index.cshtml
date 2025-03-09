@@ -1,9 +1,8 @@
 ﻿@model List<DepartmentViewModel>
 
 <h2>Departments</h2>
-<a href="/Department/Create" class="btn btn-primary">Create New Department</a>
 
-<table class="table mt-3">
+<table class="table">
     <thead>
         <tr>
             <th>Department Name</th>
@@ -22,19 +21,18 @@
                         <ul>
                             @foreach (var user in department.AssignedUsers)
                             {
-                                <li>@user</li>
+                                <li>@user.Username (@user.Role)</li> <!-- ✅ Now displays correct role -->
                             }
                         </ul>
                     }
                     else
                     {
-                        <span>No Users Assigned</span>
+                        <span>No users assigned</span>
                     }
                 </td>
                 <td>
-                    <a href="/Department/Edit?id=@department.Id" class="btn btn-warning btn-sm">Edit</a>
-                    <form method="post" action="/Department/Delete" style="display:inline;">
-                        <input type="hidden" name="id" value="@department.Id" />
+                    <a href="@Url.Action("Edit", new { id = department.Id })" class="btn btn-warning btn-sm">Edit</a>
+                    <form method="post" action="@Url.Action("Delete", new { id = department.Id })" style="display:inline;">
                         <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                     </form>
                 </td>

@@ -1,42 +1,39 @@
-﻿@model IssueTypeViewModel
+﻿@model IssueType
+@{
+    ViewData["Title"] = "Create Issue Type";
+}
 
 <h2>Create Issue Type</h2>
-
 <form asp-action="Create" method="post">
-    <div class="mb-3">
-        <label class="form-label">Issue Type Name</label>
-        <input type="text" class="form-control" asp-for="Name" required />
-        <span asp-validation-for="Name" class="text-danger"></span>
-    </div>
+    <label>Name:</label>
+    <input asp-for="Name" class="form-control" required />
 
-    <h4>Add Fields</h4>
+    <h4>Fields</h4>
     <div id="fieldsContainer">
-        <!-- Fields will be dynamically added here -->
+        <div class="fieldGroup">
+            <input type="text" name="fieldNames" class="form-control" placeholder="Field Name" required />
+            <select name="fieldTypes" class="form-control">
+                <option value="Text">Text</option>
+                <option value="Attachment">Attachment</option>
+                <option value="DateTime">DateTime</option>
+            </select>
+        </div>
     </div>
+    <button type="button" id="addField" class="btn btn-secondary">Add Field</button>
 
-    <button type="button" class="btn btn-secondary" onclick="addField()">+ Add Field</button>
-    <button type="submit" class="btn btn-primary">Save</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    <button type="submit" class="btn btn-success">Save</button>
 </form>
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-    <script>
-        let fieldIndex = 0;
-        function addField() {
-            let container = document.getElementById("fieldsContainer");
-            let html = `
-                <div class="mb-3">
-                    <label>Field Name</label>
-                    <input type="text" class="form-control" name="Fields[\${fieldIndex}].FieldName" required />
-                    <label>Field Type</label>
-                    <select class="form-control" name="Fields[\${fieldIndex}].FieldType" required>
-                        <option value="Text">Text</option>
-                        <option value="DateTime">DateTime</option>
-                    </select>
-                </div>`;
-            container.insertAdjacentHTML("beforeend", html);
-            fieldIndex++;
-        }
-    </script>
-}
+<script>
+    document.getElementById("addField").addEventListener("click", function () {
+        var div = document.createElement("div");
+        div.className = "fieldGroup";
+        div.innerHTML = `<input type="text" name="fieldNames" class="form-control" placeholder="Field Name" required />
+                         <select name="fieldTypes" class="form-control">
+                             <option value="Text">Text</option>
+                             <option value="Attachment">Attachment</option>
+                             <option value="DateTime">DateTime</option>
+                         </select>`;
+        document.getElementById("fieldsContainer").appendChild(div);
+    });
+</script>

@@ -1,0 +1,41 @@
+﻿@model List<AuthenticationTest.Models.Ticket>
+
+@{
+    ViewData["Title"] = "Open Tickets";
+}
+
+<h2>Open Tickets</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Ticket Ref</th>
+            
+            <th>Short Description</th>
+            <th>Company</th>
+            <th>Issue Type</th>
+            <th>Created On</th>
+            <th>Updated On</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var ticket in Model)
+        {
+            <tr>
+                <td>@ticket.TicketRef</td>
+                
+                <td>@ticket.ShortDescription</td>
+                <td>@ticket.Company.Name</td>
+                <td>@ticket.IssueType.Name</td>
+                <td>@ticket.CreatedOn.ToString("yyyy-MM-dd HH:mm")</td>
+                <td>@(ticket.UpdatedOn?.ToString("yyyy-MM-dd HH:mm") ?? "N/A")</td>
+                <td>@ticket.Status</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@ticket.Id" class="btn btn-primary">Edit</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

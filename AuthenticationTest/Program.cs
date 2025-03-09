@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using AuthenticationTest.Data;
+using AuthenticationTest.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,17 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+// ✅ Register Email Service
+//builder.Services.AddScoped<IEmailService, EmailService>();
+
+
+// ✅ Microsoft Graph Service for Emails
+builder.Services.AddSingleton<GraphAuth>();
+
+// ✅ Ensure Background Services (if needed)
+//builder.Services.AddHostedService<EmailProcessingService>(); // Background service for processing emails
+//builder.Services.AddHostedService<SLAService>(); // SLA Tracking
 
 // ✅ Add Identity with Roles
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
@@ -75,8 +87,6 @@ using (var scope = app.Services.CreateScope())
 
     await dbContext.SaveChangesAsync();
 }
-
-
 
 if (app.Environment.IsDevelopment())
 {

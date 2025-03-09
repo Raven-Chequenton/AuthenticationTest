@@ -1,0 +1,20 @@
+﻿@model IEnumerable<AuthenticationTest.Models.IssueTypeField>
+
+@foreach (var field in Model)
+{
+    <div class="form-group">
+        <label>@field.FieldName</label> <!-- ✅ Changed "Name" to "FieldName" -->
+        @if (field.FieldType == "Text")
+        {
+            <input type="text" class="form-control" name="DynamicFields[@field.Id]" />
+        }
+        else if (field.FieldType == "DateTime")
+        {
+            <input type="datetime-local" class="form-control" name="DynamicFields[@field.Id]" />
+        }
+        else if (field.FieldType == "Attachment")
+        {
+            <input type="file" class="form-control" name="DynamicFields[@field.Id]" />
+        }
+    </div>
+}

@@ -22,6 +22,26 @@ namespace AuthenticationTest.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("AuthenticationTest.Models.IssueType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("RequiresAttachment")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("IssueTypes", (string)null);
+                });
+
             modelBuilder.Entity("AuthenticationTest.Models.IssueTypeField", b =>
                 {
                     b.Property<int>("Id")
@@ -32,13 +52,11 @@ namespace AuthenticationTest.Data.Migrations
 
                     b.Property<string>("FieldName")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FieldType")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("IssueTypeId")
                         .HasColumnType("int");
@@ -47,7 +65,7 @@ namespace AuthenticationTest.Data.Migrations
 
                     b.HasIndex("IssueTypeId");
 
-                    b.ToTable("IssueTypeFields");
+                    b.ToTable("IssueTypeFields", (string)null);
                 });
 
             modelBuilder.Entity("AuthenticationTest.Models.Ticket", b =>
@@ -59,26 +77,60 @@ namespace AuthenticationTest.Data.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("AssignedUserId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int?>("CompanyId")
+                    b.Property<string>("AssigneeId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("CC")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("CircuitId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CompanyId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Requestor")
+                    b.Property<string>("CustomerCommunicationHistory")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("DepartmentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("InternalNotesHistory")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("IssueTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ProviderRef")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RequestorEmail")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RequestorId")
                         .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("SLA")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ShortDescription")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("TicketRef")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedOn")
                         .HasColumnType("datetime2");
@@ -87,9 +139,78 @@ namespace AuthenticationTest.Data.Migrations
 
                     b.HasIndex("AssignedUserId");
 
+                    b.HasIndex("AssigneeId");
+
+                    b.HasIndex("CircuitId");
+
                     b.HasIndex("CompanyId");
 
-                    b.ToTable("Tickets");
+                    b.HasIndex("DepartmentId");
+
+                    b.HasIndex("IssueTypeId");
+
+                    b.HasIndex("RequestorId");
+
+                    b.ToTable("Tickets", (string)null);
+                });
+
+            modelBuilder.Entity("AuthenticationTest.Models.TicketAttachment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TicketId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UploadedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UploadedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TicketId");
+
+                    b.ToTable("TicketAttachments", (string)null);
+                });
+
+            modelBuilder.Entity("AuthenticationTest.Models.TicketField", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("FieldName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FieldValue")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TicketId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TicketId");
+
+                    b.ToTable("TicketFields", (string)null);
                 });
 
             modelBuilder.Entity("Circuit", b =>
@@ -113,9 +234,9 @@ namespace AuthenticationTest.Data.Migrations
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("SLA")
+                    b.Property<int?>("SLA")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("int");
 
                     b.Property<string>("SiteName")
                         .IsRequired()
@@ -129,7 +250,7 @@ namespace AuthenticationTest.Data.Migrations
 
                     b.HasIndex("CompanyId");
 
-                    b.ToTable("Circuits");
+                    b.ToTable("Circuits", (string)null);
                 });
 
             modelBuilder.Entity("Company", b =>
@@ -147,7 +268,7 @@ namespace AuthenticationTest.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Companies");
+                    b.ToTable("Companies", (string)null);
                 });
 
             modelBuilder.Entity("Department", b =>
@@ -165,25 +286,7 @@ namespace AuthenticationTest.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Departments");
-                });
-
-            modelBuilder.Entity("IssueType", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("IssueTypes");
+                    b.ToTable("Departments", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -218,19 +321,19 @@ namespace AuthenticationTest.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "4a473a0d-00df-4112-b57e-cd446193e30c",
+                            Id = "0d3608ac-aff9-4d7d-8901-2565f2551eaa",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "ea173703-7dd4-42c6-9707-56cd4303cd4d",
+                            Id = "6851b468-4d25-4850-837f-47f320c066a0",
                             Name = "Client",
                             NormalizedName = "CLIENT"
                         },
                         new
                         {
-                            Id = "ec6914d6-7027-47df-b888-32debf7205cb",
+                            Id = "c89ad504-fa29-4a43-9e64-9bd5549c4ee9",
                             Name = "Agent",
                             NormalizedName = "AGENT"
                         });
@@ -444,12 +547,12 @@ namespace AuthenticationTest.Data.Migrations
 
                     b.HasIndex("DepartmentId");
 
-                    b.ToTable("UserDepartments");
+                    b.ToTable("UserDepartments", (string)null);
                 });
 
             modelBuilder.Entity("AuthenticationTest.Models.IssueTypeField", b =>
                 {
-                    b.HasOne("IssueType", "IssueType")
+                    b.HasOne("AuthenticationTest.Models.IssueType", "IssueType")
                         .WithMany("IssueTypeFields")
                         .HasForeignKey("IssueTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -462,15 +565,78 @@ namespace AuthenticationTest.Data.Migrations
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "AssignedUser")
                         .WithMany()
-                        .HasForeignKey("AssignedUserId");
+                        .HasForeignKey("AssignedUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "Assignee")
+                        .WithMany()
+                        .HasForeignKey("AssigneeId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Circuit", "Circuit")
+                        .WithMany()
+                        .HasForeignKey("CircuitId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Company", "Company")
                         .WithMany()
-                        .HasForeignKey("CompanyId");
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Department", "Department")
+                        .WithMany()
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("AuthenticationTest.Models.IssueType", "IssueType")
+                        .WithMany()
+                        .HasForeignKey("IssueTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "Requestor")
+                        .WithMany()
+                        .HasForeignKey("RequestorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("AssignedUser");
 
+                    b.Navigation("Assignee");
+
+                    b.Navigation("Circuit");
+
                     b.Navigation("Company");
+
+                    b.Navigation("Department");
+
+                    b.Navigation("IssueType");
+
+                    b.Navigation("Requestor");
+                });
+
+            modelBuilder.Entity("AuthenticationTest.Models.TicketAttachment", b =>
+                {
+                    b.HasOne("AuthenticationTest.Models.Ticket", "Ticket")
+                        .WithMany("TicketAttachments")
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Ticket");
+                });
+
+            modelBuilder.Entity("AuthenticationTest.Models.TicketField", b =>
+                {
+                    b.HasOne("AuthenticationTest.Models.Ticket", "Ticket")
+                        .WithMany("TicketFields")
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Ticket");
                 });
 
             modelBuilder.Entity("Circuit", b =>
@@ -573,6 +739,18 @@ namespace AuthenticationTest.Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("AuthenticationTest.Models.IssueType", b =>
+                {
+                    b.Navigation("IssueTypeFields");
+                });
+
+            modelBuilder.Entity("AuthenticationTest.Models.Ticket", b =>
+                {
+                    b.Navigation("TicketAttachments");
+
+                    b.Navigation("TicketFields");
+                });
+
             modelBuilder.Entity("Company", b =>
                 {
                     b.Navigation("UserCompanies");
@@ -581,11 +759,6 @@ namespace AuthenticationTest.Data.Migrations
             modelBuilder.Entity("Department", b =>
                 {
                     b.Navigation("UserDepartments");
-                });
-
-            modelBuilder.Entity("IssueType", b =>
-                {
-                    b.Navigation("IssueTypeFields");
                 });
 #pragma warning restore 612, 618
         }

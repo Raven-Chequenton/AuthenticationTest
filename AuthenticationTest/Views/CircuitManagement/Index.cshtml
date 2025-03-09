@@ -1,9 +1,13 @@
 ﻿@model List<Circuit>
 
+@{
+    Layout = "_Layout";
+}
+
 <h2>Circuits</h2>
 <a href="/CircuitManagement/Create" class="btn btn-primary">Add New Circuit</a>
 
-<table class="table mt-3">
+<table id="circuitsTable" class="table">
     <thead>
         <tr>
             <th>Circuit ID</th>
@@ -38,3 +42,20 @@
         }
     </tbody>
 </table>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
+
+    <script>
+        $(document).ready(function () {
+            $('#circuitsTable').DataTable({
+                "paging": true,
+                "lengthMenu": [10, 25, 50, 100],
+                "ordering": true,
+                "searching": true,
+                "info": true
+            });
+        });
+    </script>
+}
