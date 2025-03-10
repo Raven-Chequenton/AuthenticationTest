@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using NETCore.MailKit.Core;
 using AuthenticationTest.Services;
+using IEmailService = AuthenticationTest.Services.IEmailService;
 
 public class EmailService : IEmailService
 {
@@ -31,7 +32,7 @@ public class EmailService : IEmailService
             using (var client = new ImapClient())
             {
                 client.Connect("smtp.office365.com", 993, SecureSocketOptions.SslOnConnect);
-                client.Authenticate("aihelpdesk@arcinternational.co.za", "**");
+                client.Authenticate("aihelpdesk@arcinternational.co.za", "ScZHG5s1jocoNP3X812V86");
 
                 var inbox = client.Inbox;
                 inbox.Open(FolderAccess.ReadWrite);
@@ -50,7 +51,6 @@ public class EmailService : IEmailService
                     var newTicket = new Ticket
                     {
                         RequestorEmail = requestorEmail,
-                        RequestorUsername = requestor?.UserName ?? "Unknown",
                         IssueTypeId = GetIssueTypeIdFromSubject(email.Subject),
                         ShortDescription = email.Subject,
                         Status = "Unassigned",

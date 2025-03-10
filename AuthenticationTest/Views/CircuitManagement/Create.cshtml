@@ -1,6 +1,6 @@
-﻿@model Circuit
+﻿@model Ticket
 
-<h2>Create Circuit</h2>
+<h2>Create Ticket</h2>
 
 @if (!ViewData.ModelState.IsValid)
 {
@@ -15,48 +15,69 @@
     </div>
 }
 
-<form method="post">
-    <div class="mb-3">
-        <label>Circuit ID</label>
-        <input type="text" class="form-control" asp-for="CircuitID" required />
-        <span asp-validation-for="CircuitID" class="text-danger"></span>
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label>Requestor</label>
+        <input type="text" class="form-control" value="@User.Identity.Name" readonly />
     </div>
-    <div class="mb-3">
-        <label>Site Name</label>
-        <input type="text" class="form-control" asp-for="SiteName" required />
-        <span asp-validation-for="SiteName" class="text-danger"></span>
-    </div>
-    <div class="mb-3">
-        <label>VLAN</label>
-        <input type="text" class="form-control" asp-for="VLAN" required />
-        <span asp-validation-for="VLAN" class="text-danger"></span>
-    </div>
-    <div class="mb-3">
-        <label>SLA (Hours)</label>
-        <input type="text" class="form-control" asp-for="SLA" required />
-        <span asp-validation-for="SLA" class="text-danger"></span>
-    </div>
-    <div class="mb-3">
+
+    <div class="form-group">
         <label>Company</label>
-        <select class="form-control" name="CompanyId" asp-for="CompanyId" required>
-            <option value="">-- Select a Company --</option>
-            @foreach (var company in ViewBag.Companies)
-            {
-                <option value="@company.Id">@company.Name</option>
-            }
-        </select>
-        <span asp-validation-for="CompanyId" class="text-danger"></span>
+        @if (User.IsInRole("Client"))
+        {
+            <input type="text" class="form-control" value="@ViewBag.CompanyName" readonly />
+            <input type="hidden" asp-for="CompanyId" value="@ViewBag.CompanyId" />
+        }
+        else
+        {
+            <select asp-for="CompanyId" class="form-control" asp-items="ViewBag.Companies"></select>
+        }
     </div>
 
-    <!-- ✅ Add a Hidden Field to Ensure Binding -->
-    <input type="hidden" name="CompanyId" id="HiddenCompanyId" />
+    <div class="form-group">
+        <label>Circuit ID</label>
+        <select asp-for="CircuitId" class="form-control" asp-items="ViewBag.CircuitIds"></select>
+    </div>
 
-    <button type="submit" class="btn btn-primary">Create</button>
+    <div class="form-group">
+        <label>Site Name</label>
+        <input type="text" id="siteName" class="form-control" asp-for="SiteName" readonly />
+    </div>
+
+    <div class="form-group">
+        <label>VLAN</label>
+        <input type="text" id="vlan" class="form-control" asp-for="VLAN" readonly />
+    </div>
+
+    <div class="form-group">
+        <label>Issue Type</label>
+        <select asp-for="IssueTypeId" class="form-control" asp-items="ViewBag.IssueTypes"></select>
+    </div>
+
+    <div id="dynamicFields"></div>
+
+   
+
+    <button type="submit" class="btn btn-primary">Create Ticket</button>
 </form>
 
 <script>
-    // ✅ Ensure dropdown selection is saved correctly
-    document.getElementById("CompanyId").addEventListener("change", function() {
-        document.getElementById("HiddenCompanyId").value = this.value;
+    $(document).ready(function () {
+        $('#CircuitId').change(function () {
+            var circuitId = $(this).val();
+            if (circuitId) {
+                $.get('/Tickets/GetCircuitDetails/' + circuitId, function (data) {
+                    $('#siteName').val(data.siteName);
+                    $('#vlan').val(data.vlan);
+                }).fail(function () {
+                    console.error("Error fetching Circuit details.");
+                });
+            } else {
+                $('#siteName').val('N/A');
+                $('#vlan').val('N/A');
+            }
+        });
     });
 </script>
+
+

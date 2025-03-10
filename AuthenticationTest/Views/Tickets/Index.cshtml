@@ -1,4 +1,4 @@
-﻿@model IEnumerable<AuthenticationTest.Models.Ticket>
+﻿@model IEnumerable<AuthenticationTest.Models.ViewModels.TicketViewModel>
 
 @{
     ViewData["Title"] = "All Tickets";
@@ -10,13 +10,10 @@
     <thead>
         <tr>
             <th>Ticket Ref</th>
-            <th>Requestor</th> <!-- ✅ Added RequestorUsername -->
+            <th>Requestor Email</th>
             <th>Short Description</th>
-            <th>Company</th>
-            <th>Issue Type</th>
-            <th>Circuit ID</th>
-            <th>Site Name</th>
-            <th>VLAN</th>
+            <th>Company</th> <!-- ✅ New Column -->
+            <th>Department</th>
             <th>Status</th>
             <th>Created On</th>
             <th>Updated On</th>
@@ -28,19 +25,17 @@
         {
             <tr>
                 <td>@ticket.TicketRef</td>
-                <td>@(ticket.RequestorUsername ?? "N/A")</td> <!-- ✅ Displaying Requestor -->
+                <td>@ticket.RequestorEmail</td>
                 <td>@ticket.ShortDescription</td>
-                <td>@(ticket.Company?.Name ?? "N/A")</td>
-                <td>@(ticket.IssueType?.Name ?? "N/A")</td>
-                <td>@(ticket.Circuit?.CircuitID ?? "N/A")</td>
-                <td>@(ticket.Circuit?.SiteName ?? "N/A")</td>
-                <td>@(ticket.Circuit?.VLAN ?? "N/A")</td>
+                <td>@ticket.CompanyName</td> <!-- ✅ Display Company Name -->
+                <td>@(ticket.DepartmentId.HasValue ? ticket.DepartmentId.Value.ToString() : "N/A")</td>
                 <td>@ticket.Status</td>
                 <td>@ticket.CreatedOn.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
-                <td>@(ticket.UpdatedOn?.ToLocalTime().ToString("yyyy-MM-dd HH:mm") ?? "N/A")</td>
+                <td>@(ticket.UpdatedOn.HasValue ? ticket.UpdatedOn.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm") : "N/A")</td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@ticket.Id" class="btn btn-sm btn-warning">Edit</a>
-                    <a asp-action="Details" asp-route-id="@ticket.Id" class="btn btn-sm btn-info">View</a>
+
+                    <a asp-action="Details" asp-route-id="@ticket.TicketRef" class="btn btn-sm btn-info">View</a>
                 </td>
             </tr>
         }

@@ -48,8 +48,8 @@ public class CircuitManagementController : Controller
     [HttpPost]
     public async Task<IActionResult> Create(Circuit model)
     {
-        _logger.LogInformation("🔄 Incoming Circuit Data: CircuitID={CircuitID}, Site={SiteName}, VLAN={VLAN}, SLA={SLA}, CompanyId={CompanyId}",
-            model.CircuitID, model.SiteName, model.VLAN, model.SLA, model.CompanyId);
+        _logger.LogInformation("🔄 Incoming Circuit Data: CircuitID={CircuitID}, Site={SiteName}, VLAN={VLAN}, CompanyId={CompanyId}",
+            model.CircuitID, model.SiteName, model.VLAN, model.CompanyId);
 
         var user = await _userManager.GetUserAsync(User);
         if (user == null)

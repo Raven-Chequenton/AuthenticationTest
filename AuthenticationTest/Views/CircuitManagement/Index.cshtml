@@ -13,7 +13,7 @@
             <th>Circuit ID</th>
             <th>Site Name</th>
             <th>VLAN</th>
-            <th>SLA</th>
+            
             <th>Company</th>
             <th>Created On</th>
             <th>Created By</th>
@@ -27,7 +27,7 @@
                 <td>@circuit.CircuitID</td>
                 <td>@circuit.SiteName</td>
                 <td>@circuit.VLAN</td>
-                <td>@circuit.SLA</td>
+               
                 <td>@(circuit.Company != null ? circuit.Company.Name : "No Company")</td>
                 <td>@circuit.CreatedOn.ToString("yyyy-MM-dd HH:mm")</td>
                 <td>@circuit.CreatedBy</td>

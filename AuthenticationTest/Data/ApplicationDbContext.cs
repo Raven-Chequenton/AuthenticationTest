@@ -95,11 +95,7 @@ namespace AuthenticationTest.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             // ✅ Add missing relationships
-            builder.Entity<Ticket>()
-                .HasOne(t => t.AssignedUser) // 🔹 Assigned User (new relationship)
-                .WithMany()
-                .HasForeignKey(t => t.AssignedUserId)
-                .OnDelete(DeleteBehavior.Restrict); // ❌ Prevents cascade delete
+           
 
             builder.Entity<Ticket>()
                 .HasOne(t => t.Department) // 🔹 Department (new relationship)

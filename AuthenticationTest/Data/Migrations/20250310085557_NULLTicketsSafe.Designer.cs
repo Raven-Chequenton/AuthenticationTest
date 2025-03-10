@@ -4,6 +4,7 @@ using AuthenticationTest.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AuthenticationTest.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250310085557_NULLTicketsSafe")]
+    partial class NULLTicketsSafe
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -76,6 +79,10 @@ namespace AuthenticationTest.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AssignedUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("AssigneeId")
                         .HasColumnType("nvarchar(450)");
 
@@ -113,11 +120,12 @@ namespace AuthenticationTest.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ShortDescription")
+                    b.Property<string>("SLA")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("SiteName")
+                    b.Property<string>("ShortDescription")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
@@ -131,10 +139,9 @@ namespace AuthenticationTest.Data.Migrations
                     b.Property<DateTime?>("UpdatedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("VLAN")
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
+
+                    b.HasIndex("AssignedUserId");
 
                     b.HasIndex("AssigneeId");
 
@@ -229,6 +236,10 @@ namespace AuthenticationTest.Data.Migrations
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("SLA")
+                        .IsRequired()
+                        .HasColumnType("int");
+
                     b.Property<string>("SiteName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -312,19 +323,19 @@ namespace AuthenticationTest.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "e687ee47-c7af-4439-9125-437600de5208",
+                            Id = "b2039d1f-9cd2-42ee-ad75-14f27bbbb7ff",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "6a141456-5029-4693-959e-00f48628bce5",
+                            Id = "3e8c2424-ec3a-4c27-89e4-efae81b8e582",
                             Name = "Client",
                             NormalizedName = "CLIENT"
                         },
                         new
                         {
-                            Id = "41b9e585-63e3-47a0-b773-6c2d0177066a",
+                            Id = "2a3e25f2-2eff-41df-b6d9-d749c388ac76",
                             Name = "Agent",
                             NormalizedName = "AGENT"
                         });
@@ -554,6 +565,12 @@ namespace AuthenticationTest.Data.Migrations
 
             modelBuilder.Entity("AuthenticationTest.Models.Ticket", b =>
                 {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "AssignedUser")
+                        .WithMany()
+                        .HasForeignKey("AssignedUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "Assignee")
                         .WithMany()
                         .HasForeignKey("AssigneeId")
@@ -580,6 +597,8 @@ namespace AuthenticationTest.Data.Migrations
                         .HasForeignKey("IssueTypeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("AssignedUser");
 
                     b.Navigation("Assignee");
 

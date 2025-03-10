@@ -10,13 +10,12 @@ public class Circuit
     public string CircuitID { get; set; }
 
     [Required]
-    public string SiteName { get; set; }
+    public string? SiteName { get; set; }
 
     [Required]
-    public string VLAN { get; set; }
+    public string? VLAN { get; set; }
 
-    [Required]
-    public int? SLA { get; set; } // Stored as hours (e.g., "4" for 4-hour SLA)
+   
 
     [Required(ErrorMessage = "Please select a company.")]
     [Display(Name = "Company")]

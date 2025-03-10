@@ -1,5 +1,6 @@
 ﻿using AuthenticationTest.Data;
 using AuthenticationTest.Models;
+using AuthenticationTest.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -26,15 +27,42 @@ namespace AuthenticationTest.Controllers
         // ✅ Index Page
         public async Task<IActionResult> Index()
         {
-            var tickets = await _context.Tickets
-                .Include(t => t.Company)
-                .Include(t => t.Circuit)
-                .Include(t => t.IssueType)
-                .OrderByDescending(t => t.CreatedOn)
-                .ToListAsync();
+            var user = await _userManager.GetUserAsync(User);
+            var roles = await _userManager.GetRolesAsync(user);
 
-            return View(tickets);
+            var userCompany = await _context.UserCompanies
+                .Include(uc => uc.Company)
+                .FirstOrDefaultAsync(uc => uc.UserId == user.Id);
+
+            ViewBag.CompanyName = userCompany?.Company.Name;
+            ViewBag.CompanyId = userCompany?.CompanyId;
+
+            var tickets = await _context.Tickets
+                .Include(t => t.IssueType)
+                .Include(t => t.Circuit)
+                .Include(t => t.Company)
+                .AsNoTracking()
+                .ToListAsync(); // ✅ Fetch from database first
+
+            // ✅ Convert to ViewModel AFTER fetching
+            var ticketViewModels = tickets
+                .Select(t => new TicketViewModel
+                {
+                    Id = t.Id,
+                    TicketRef = t.TicketRef,
+                    RequestorEmail = t.RequestorEmail ?? "N/A",
+                    ShortDescription = $"{(t.IssueType != null ? t.IssueType.Name : "N/A")} - {(t.Circuit != null ? t.Circuit.CircuitID : "N/A")}",
+                    CompanyName = t.Company?.Name ?? "N/A",
+                    DepartmentId = t.DepartmentId,
+                    Status = t.Status ?? "Unknown",
+                    CreatedOn = t.CreatedOn,
+                    UpdatedOn = t.UpdatedOn ?? DateTime.UtcNow
+                })
+                .ToList();
+
+            return View(ticketViewModels);
         }
+
 
         // ✅ Create Ticket Page
         public async Task<IActionResult> Create()
@@ -42,7 +70,6 @@ namespace AuthenticationTest.Controllers
             var user = await _userManager.GetUserAsync(User);
             var roles = await _userManager.GetRolesAsync(user);
 
-            // ✅ Fetch user Company
             var userCompany = await _context.UserCompanies
                 .Include(uc => uc.Company)
                 .FirstOrDefaultAsync(uc => uc.UserId == user.Id);
@@ -51,19 +78,20 @@ namespace AuthenticationTest.Controllers
             ViewBag.CompanyId = userCompany?.CompanyId;
             ViewBag.Companies = roles.Contains("Client") ? null : new SelectList(await _context.Companies.ToListAsync(), "Id", "Name");
 
-            // ✅ Circuit IDs Filtered for Client & Admin/Agent
+            // ✅ Fetch Circuits First, Then Apply String Interpolation
+            var circuits = await _context.Circuits
+                .Where(c => roles.Contains("Client") ? c.CompanyId == userCompany.CompanyId : true)
+                .ToListAsync(); // ✅ Fetch from DB first
+
             ViewBag.CircuitIds = new SelectList(
-                await _context.Circuits
-                    .Where(c => roles.Contains("Client") ? c.CompanyId == userCompany.CompanyId : true)
-                    .Select(c => new { c.Id, Display = $"{c.CircuitID} - {c.SiteName}" })
-                    .ToListAsync(),
+                circuits.Select(c => new { c.Id, Display = $"{c.CircuitID} - {c.SiteName}" }), // ✅ Apply String Interpolation in Memory
                 "Id", "Display");
 
-            // ✅ Populate Issue Types
             ViewBag.IssueTypes = new SelectList(await _context.IssueTypes.ToListAsync(), "Id", "Name");
 
             return View();
         }
+
 
         // ✅ Fetch Circuit Details (AJAX)
         [HttpGet]
@@ -85,28 +113,110 @@ namespace AuthenticationTest.Controllers
             return PartialView("_IssueTypeFields", fields);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> AddInternalNote(int ticketId, string note)
+        {
+            if (ticketId <= 0 || string.IsNullOrWhiteSpace(note))
+            {
+                return BadRequest("Invalid ticket ID or empty note.");
+            }
+
+            var ticket = await _context.Tickets.FirstOrDefaultAsync(t => t.Id == ticketId);
+            if (ticket == null)
+            {
+                return NotFound("Ticket not found.");
+            }
+
+            // Append the new note to the existing history
+            ticket.InternalNotesHistory = (ticket.InternalNotesHistory ?? "") + $"\n{User.Identity.Name} - {note} - {DateTime.UtcNow}";
+
+            _context.Tickets.Update(ticket);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Note added successfully." });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SendCustomerMessage(int ticketId, string message)
+        {
+            if (ticketId <= 0 || string.IsNullOrWhiteSpace(message))
+            {
+                return BadRequest("Invalid ticket ID or empty message.");
+            }
+
+            var ticket = await _context.Tickets.FirstOrDefaultAsync(t => t.Id == ticketId);
+            if (ticket == null)
+            {
+                return NotFound("Ticket not found.");
+            }
+
+            // Append the new message to the existing Customer Communication History
+            ticket.CustomerCommunicationHistory = (ticket.CustomerCommunicationHistory ?? "") +
+                $"\n{User.Identity.Name} - {message} - {DateTime.UtcNow}";
+
+            _context.Tickets.Update(ticket);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Customer message added successfully." });
+        }
+
+
+
         // ✅ Create Ticket POST
         [HttpPost]
-        public async Task<IActionResult> Create(Ticket ticket, List<IFormFile> attachments)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(Ticket ticket, List<IFormFile> attachments, Dictionary<string, string> dynamicFields)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return Unauthorized();
 
-            var issueType = await _context.IssueTypes.FindAsync(ticket.IssueTypeId);
-            var circuit = await _context.Circuits.FindAsync(ticket.CircuitId);
+            // ✅ Generate TicketRef
+            ticket.TicketRef = $"ARC-{(_context.Tickets.Count() + 1).ToString("D6")}";
 
-            if (issueType == null || circuit == null)
+            // ✅ Fetch Circuit Details
+            var circuit = await _context.Circuits.FindAsync(ticket.CircuitId);
+            if (circuit != null)
             {
-                ModelState.AddModelError("", "Issue Type or Circuit ID is invalid.");
-                return View(ticket);
+                ticket.VLAN = circuit.VLAN;
+                ticket.SiteName = circuit.SiteName;
+            }
+            else
+            {
+                ticket.VLAN = "N/A";
+                ticket.SiteName = "N/A";
             }
 
-            // ✅ Set Requestor as Username
-            ticket.RequestorUsername = user.Email;
-            ticket.CreatedOn = DateTime.UtcNow;
+            // ✅ Ensure Required Fields Have Default Values
             ticket.Status = "Unassigned";
-            ticket.TicketRef = $"ARC-{(_context.Tickets.Count() + 1).ToString("D6")}";
-            ticket.ShortDescription = $"{issueType.Name} - {circuit.CircuitID}";
+            ticket.CreatedOn = DateTime.UtcNow;
+            ticket.RequestorEmail = user.Email;
+
+            // ✅ Build Internal Notes with Dynamic Fields
+            string internalNotesLog = $@"
+    <strong>Ticket Created:</strong> {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} <br/>
+    <strong>Requestor:</strong> {user.Email} <br/>
+    <strong>Company:</strong> {(ticket.CompanyId != 0 ? _context.Companies.Find(ticket.CompanyId)?.Name : "N/A")} <br/>
+    <strong>Circuit ID:</strong> {(circuit?.CircuitID ?? "N/A")} <br/>
+    <strong>Issue Type:</strong> {(ticket.IssueTypeId != 0 ? _context.IssueTypes.Find(ticket.IssueTypeId)?.Name : "N/A")} <br/>
+    ";
+
+            // ✅ Append Dynamic Fields
+            if (dynamicFields != null && dynamicFields.Count > 0)
+            {
+                internalNotesLog += "<strong>Dynamic Fields:</strong> <br/>";
+                foreach (var field in dynamicFields)
+                {
+                    internalNotesLog += $"{field.Key}: {field.Value} <br/>";
+                }
+            }
+
+            ticket.InternalNotesHistory = internalNotesLog;
+
+            // ✅ Validate model
+            if (!ModelState.IsValid)
+            {
+                return View(ticket);
+            }
 
             _context.Tickets.Add(ticket);
             await _context.SaveChangesAsync();
@@ -140,6 +250,11 @@ namespace AuthenticationTest.Controllers
         // ✅ Edit Ticket
         public async Task<IActionResult> Edit(int id)
         {
+            if (id <= 0)
+            { 
+                return NotFound();
+            }
+
             var ticket = await _context.Tickets
                 .Include(t => t.TicketAttachments)
                 .Include(t => t.TicketFields)
@@ -154,13 +269,35 @@ namespace AuthenticationTest.Controllers
                 return NotFound();
             }
 
+            // ✅ Ensure navigation properties are initialized correctly
+            ticket.Company ??= new Company { Name = "N/A" };
+
+            
+
+            ticket.IssueType ??= new IssueType { Name = "N/A" };
+            ticket.Assignee ??= new IdentityUser { UserName = "Unassigned" };
+            ticket.TicketAttachments ??= new List<TicketAttachment>();
+            ticket.TicketFields ??= new List<TicketField>();
+
+            // ✅ Handle other nullable values safely
+            ticket.Status = string.IsNullOrEmpty(ticket.Status) ? "Open" : ticket.Status;
+            ticket.ProviderRef = string.IsNullOrEmpty(ticket.ProviderRef) ? "N/A" : ticket.ProviderRef;
+            ticket.CC = string.IsNullOrEmpty(ticket.CC) ? "N/A" : ticket.CC;
+            ticket.InternalNotesHistory = string.IsNullOrEmpty(ticket.InternalNotesHistory) ? "No internal notes yet." : ticket.InternalNotesHistory;
+            ticket.CustomerCommunicationHistory = string.IsNullOrEmpty(ticket.CustomerCommunicationHistory) ? "No customer communication yet." : ticket.CustomerCommunicationHistory;
+            ticket.CreatedOn = ticket.CreatedOn == DateTime.MinValue ? DateTime.Now : ticket.CreatedOn;
+            ticket.UpdatedOn = DateTime.Now;
+            ticket.RequestorEmail = string.IsNullOrEmpty(ticket.RequestorEmail) ? "No requestor email" : ticket.RequestorEmail;
+
+            // ✅ Populate ViewBag for dropdown selections
             ViewBag.Companies = new SelectList(_context.Companies, "Id", "Name", ticket.CompanyId);
-            ViewBag.CircuitIds = new SelectList(_context.Circuits, "CircuitID", "CircuitID", ticket.CircuitId);
+            ViewBag.CircuitIds = new SelectList(_context.Circuits, "Id", "CircuitID", ticket.CircuitId ?? 0);
             ViewBag.IssueTypes = new SelectList(_context.IssueTypes, "Id", "Name", ticket.IssueTypeId);
             ViewBag.Departments = new SelectList(_context.Departments, "Id", "Name");
 
             return View(ticket);
         }
+
 
         // ✅ Get Assignees by Department (AJAX)
         [HttpGet]
